@@ -1,6 +1,7 @@
 /// Quick Action Button Widget
 ///
 /// Compact button for quick access to key features
+library;
 
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
@@ -30,51 +31,79 @@ class QuickActionButton extends StatelessWidget {
       label: label,
       child: Tooltip(
         message: label,
-        child: Card(
-          elevation: 0,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: isDark ? const Color(0xFF2A2A2A) : AppColors.border,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(
+              colors: [
+                color.withValues(alpha: 0.14),
+                Colors.white.withValues(alpha: isDark ? 0.06 : 0.9),
+              ],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+            border: Border.all(
+              color: color.withValues(alpha: 0.35),
               width: 1,
             ),
-          ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(16),
-            splashColor: color.withValues(alpha: 0.1),
-            highlightColor: color.withValues(alpha: 0.05),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppDimensions.paddingMD,
-                horizontal: AppDimensions.paddingSM,
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.14),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: color, size: 20),
-                  ),
-                  const SizedBox(width: AppDimensions.paddingSM),
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(18),
+              splashColor: color.withValues(alpha: 0.12),
+              highlightColor: color.withValues(alpha: 0.07),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppDimensions.paddingMD,
+                  horizontal: AppDimensions.paddingSM,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            color.withValues(alpha: 0.92),
+                            color.withValues(alpha: 0.7),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      child: Icon(icon, color: AppColors.textLight, size: 20),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: AppDimensions.paddingSM),
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: textColor ?? AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

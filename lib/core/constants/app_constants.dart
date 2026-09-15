@@ -1,5 +1,5 @@
 /// Application Constants
-/// 
+///
 /// This file contains all constant values used throughout the app.
 /// Including API endpoints, UI constants, strings, and configuration values.
 
@@ -10,10 +10,10 @@ class ApiConstants {
 
   /// API request timeout duration
   static const Duration requestTimeout = Duration(seconds: 30);
-  
+
   /// API connection timeout duration
   static const Duration connectionTimeout = Duration(seconds: 15);
-  
+
   /// Maximum number of retry attempts for failed requests
   static const int maxRetryAttempts = 3;
 }
@@ -25,13 +25,13 @@ class AppConstants {
 
   /// App name displayed to users
   static const String appName = 'Crop Advisory';
-  
+
   /// App version
   static const String appVersion = '1.0.0';
-  
+
   /// Default app locale
   static const String defaultLocale = 'en';
-  
+
   /// Supported locales for the app
   static const List<String> supportedLocales = [
     'en', // English
@@ -54,40 +54,40 @@ class AppDimensions {
 
   /// Extra small padding/margin (4.0)
   static const double paddingXS = 4.0;
-  
+
   /// Small padding/margin (8.0)
   static const double paddingSM = 8.0;
-  
+
   /// Medium padding/margin (16.0)
   static const double paddingMD = 16.0;
-  
+
   /// Large padding/margin (24.0)
   static const double paddingLG = 24.0;
-  
+
   /// Extra large padding/margin (32.0)
   static const double paddingXL = 32.0;
 
   /// Small border radius (4.0)
   static const double radiusSM = 4.0;
-  
+
   /// Medium border radius (8.0)
   static const double radiusMD = 8.0;
-  
+
   /// Large border radius (12.0)
   static const double radiusLG = 12.0;
-  
+
   /// Extra large border radius (16.0)
   static const double radiusXL = 16.0;
 
   /// Small icon size (16.0)
   static const double iconSM = 16.0;
-  
+
   /// Medium icon size (24.0)
   static const double iconMD = 24.0;
-  
+
   /// Large icon size (32.0)
   static const double iconLG = 32.0;
-  
+
   /// Extra large icon size (48.0)
   static const double iconXL = 48.0;
 }
@@ -122,22 +122,22 @@ class StorageKeys {
 
   /// Key for storing user authentication token
   static const String authToken = 'auth_token';
-  
+
   /// Key for storing user profile data
   static const String userProfile = 'user_profile';
-  
+
   /// Key for storing selected language preference
   static const String languagePreference = 'language_preference';
-  
+
   /// Key for storing theme preference (light/dark)
   static const String themePreference = 'theme_preference';
-  
+
   /// Key for storing onboarding completion status
   static const String onboardingCompleted = 'onboarding_completed';
-  
+
   /// Key for storing offline chat history
   static const String offlineChatHistory = 'offline_chat_history';
-  
+
   /// Key for storing cached crop data
   static const String cachedCropData = 'cached_crop_data';
 }
@@ -182,6 +182,7 @@ class Routes {
   static const String weather = '/weather';
   static const String pestDetection = '/pest-detection';
   static const String marketPrices = '/market-prices';
+  static const String fertilizerCalculator = '/fertilizer-calculator';
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String languageSelection = '/language-selection';
@@ -192,11 +193,16 @@ class ErrorMessages {
   // Prevent instantiation
   ErrorMessages._();
 
-  static const String networkError = 'Network connection error. Please check your internet connection.';
+  static const String networkError =
+      'Network connection error. Please check your internet connection.';
   static const String serverError = 'Server error. Please try again later.';
-  static const String authenticationError = 'Authentication failed. Please login again.';
-  static const String validationError = 'Please check your input and try again.';
-  static const String unknownError = 'An unexpected error occurred. Please try again.';
+  static const String authenticationError =
+      'Authentication failed. Please login again.';
+  static const String validationError =
+      'Please check your input and try again.';
+  static const String unknownError =
+      'An unexpected error occurred. Please try again.';
   static const String noDataError = 'No data available.';
-  static const String permissionDenied = 'Permission denied. Please grant the required permissions.';
+  static const String permissionDenied =
+      'Permission denied. Please grant the required permissions.';
 }

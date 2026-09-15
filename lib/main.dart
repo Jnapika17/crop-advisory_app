@@ -32,6 +32,7 @@ import 'features/soil_health/screens/soil_health_screen.dart';
 import 'features/weather/screens/weather_screen.dart';
 import 'features/pest_detection/screens/pest_detection_screen.dart';
 import 'features/market_prices/screens/market_prices_screen.dart';
+import 'features/fertilizer/screens/fertilizer_calculator_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Global logger instance for debugging throughout the app
@@ -62,44 +63,44 @@ void main() async {
 
     // Load environment variables from .env file
     logger.i('Loading environment configuration...');
-    await dotenv.load(fileName: '.env');
+    await dotenv.load(fileName: '.env', isOptional: true);
     logger.i('Environment configuration loaded');
 
     // Validate environment configuration
     final config = EnvConfig.fromEnv();
     if (!config.isValid) {
-      logger.e('Invalid environment configuration. Please check .env file.');
-      throw Exception(
-        'Missing required environment variables. '
-        'Please ensure SUPABASE_URL and SUPABASE_ANON_KEY are set in .env file.',
+      logger.w(
+        'Supabase environment variables are missing. Running in demo mode. '
+        'Set SUPABASE_URL and SUPABASE_ANON_KEY in .env to enable full backend features.',
       );
+    } else {
+      logger.i('Environment configuration validated');
+
+      // Initialize Supabase
+      logger.i('Initializing Supabase...');
+      await Supabase.initialize(
+        url: config.supabaseUrl,
+        anonKey: config.supabaseAnonKey,
+        authOptions: const FlutterAuthClientOptions(
+          authFlowType: AuthFlowType.pkce,
+        ),
+      );
+
+      // Listen for auth state changes to ensure tokens are refreshed
+      Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+        final AuthChangeEvent event = data.event;
+
+        // The Supabase SDK automatically handles token refresh when this listener is active.
+        // You can add routing logic here if you want to force users to the login screen
+        // if their session expires while using the app.
+        if (event == AuthChangeEvent.signedOut) {
+          logger.i('User signed out');
+        } else if (event == AuthChangeEvent.tokenRefreshed) {
+          logger.i('Auth token refreshed successfully');
+        }
+      });
+      logger.i('Supabase initialized successfully');
     }
-    logger.i('Environment configuration validated');
-
-    // Initialize Supabase
-    logger.i('Initializing Supabase...');
-    await Supabase.initialize(
-      url: config.supabaseUrl,
-      anonKey: config.supabaseAnonKey,
-      authOptions: const FlutterAuthClientOptions(
-        authFlowType: AuthFlowType.pkce,
-      ),
-    );
-
-    // Listen for auth state changes to ensure tokens are refreshed
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      final AuthChangeEvent event = data.event;
-      
-      // The Supabase SDK automatically handles token refresh when this listener is active.
-      // You can add routing logic here if you want to force users to the login screen 
-      // if their session expires while using the app.
-      if (event == AuthChangeEvent.signedOut) {
-        logger.i('User signed out');
-      } else if (event == AuthChangeEvent.tokenRefreshed) {
-        logger.i('Auth token refreshed successfully');
-      }
-    });
-    logger.i('Supabase initialized successfully');
 
     // Set system UI overlay style
     SystemChrome.setSystemUIOverlayStyle(
@@ -217,6 +218,8 @@ class CropAdvisoryApp extends ConsumerWidget {
         Routes.weather: (context) => const WeatherScreen(),
         Routes.pestDetection: (context) => const PestDetectionScreen(),
         Routes.marketPrices: (context) => const MarketPricesScreen(),
+        Routes.fertilizerCalculator: (context) =>
+            const FertilizerCalculatorScreen(),
         Routes.languageSelection: (context) => const LanguageChangeScreen(),
         // Add more routes as features are implemented
       },
@@ -250,6 +253,31 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
+  bool _hasSupabaseClient() {
+    try {
+      Supabase.instance.client;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> _hasActiveSession() async {
+    try {
+      if (Supabase.instance.client.auth.currentSession != null) {
+        return true;
+      }
+    } catch (_) {}
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final demoSession = prefs.getString('demo_auth_session');
+      return demoSession != null && demoSession.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -268,7 +296,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final prefs = await SharedPreferences.getInstance();
       final onboardingCompleted =
           prefs.getBool(StorageKeys.onboardingCompleted) ?? false;
-      final hasActiveSession = Supabase.instance.client.auth.currentSession != null;
+      final hasActiveSession = await _hasActiveSession();
 
       logger.i('App initialization completed');
 
@@ -296,15 +324,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               final creds = await bioService.getCredentials();
               if (creds != null) {
                 try {
-                  // Sign in silently with stored credentials
-                  await Supabase.instance.client.auth.signInWithPassword(
-                    email: creds['email']!,
-                    password: creds['password']!,
-                  );
-                  if (mounted) {
-                    Navigator.of(context).pushReplacementNamed(Routes.home);
+                  // Sign in silently with stored credentials only if Supabase is initialized
+                  if (_hasSupabaseClient()) {
+                    await Supabase.instance.client.auth.signInWithPassword(
+                      email: creds['email']!,
+                      password: creds['password']!,
+                    );
+                    if (mounted) {
+                      Navigator.of(context).pushReplacementNamed(Routes.home);
+                    }
+                    return;
                   }
-                  return;
                 } catch (e) {
                   logger.e('Biometric auto-login failed: $e');
                   // Fall through to login screen
@@ -317,7 +347,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
           if (mounted) {
             Navigator.of(context).pushReplacementNamed(Routes.login);
           }
-        }}
+        }
+      }
     } catch (e) {
       logger.e('Error during app initialization: $e');
     }

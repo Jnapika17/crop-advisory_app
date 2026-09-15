@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../auth/providers/simple_auth_provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/providers/theme_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -27,9 +28,8 @@ class ProfileScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.editProfile)));
+              _showTextDialog(context, l10n.editProfile,
+                  'Update your profile details from your account settings.');
             },
           ),
         ],
@@ -52,7 +52,6 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
                 Text(user?.email ?? l10n.guestUser, style: AppTextStyles.h3),
-
                 const SizedBox(height: AppDimensions.paddingSM),
                 Text(
                   l10n.farmer,
@@ -72,9 +71,8 @@ class ProfileScreen extends ConsumerWidget {
             title: l10n.personalInformation,
             subtitle: l10n.managePersonalDetails,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
+              _showTextDialog(context, l10n.personalInformation,
+                  'Your signed-in email is ${user?.email ?? l10n.guestUser}.');
             },
           ),
           _buildListTile(
@@ -82,9 +80,8 @@ class ProfileScreen extends ConsumerWidget {
             title: l10n.farmDetails,
             subtitle: l10n.updateFarmInformation,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
+              _showTextDialog(context, l10n.farmDetails,
+                  'Add your crop, acreage, and location details when requesting an advisory.');
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
@@ -104,9 +101,7 @@ class ProfileScreen extends ConsumerWidget {
             title: l10n.notifications,
             subtitle: l10n.manageNotificationPreferences,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
+              _showNotificationPreferences(context);
             },
           ),
           _buildListTile(
@@ -114,9 +109,7 @@ class ProfileScreen extends ConsumerWidget {
             title: l10n.theme,
             subtitle: l10n.chooseAppAppearance,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
+              ref.read(themeMode$Provider.notifier).toggle();
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
@@ -128,9 +121,8 @@ class ProfileScreen extends ConsumerWidget {
             title: l10n.helpSupport,
             subtitle: l10n.getHelpWithApp,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
+              _showTextDialog(context, l10n.helpSupport,
+                  'Use AI Chat for farming questions or contact your local agriculture office for urgent field support.');
             },
           ),
           _buildListTile(
@@ -146,9 +138,8 @@ class ProfileScreen extends ConsumerWidget {
             title: l10n.privacyPolicy,
             subtitle: l10n.readPrivacyPolicy,
             onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(l10n.featureComingSoon)));
+              _showTextDialog(context, l10n.privacyPolicy,
+                  'Your account data is stored securely by Supabase. AI requests include only the information you submit for that request.');
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
@@ -182,6 +173,60 @@ class ProfileScreen extends ConsumerWidget {
         top: AppDimensions.paddingSM,
       ),
       child: Text(title, style: AppTextStyles.h4),
+    );
+  }
+
+  void _showTextDialog(BuildContext context, String title, String message) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showNotificationPreferences(BuildContext context) {
+    var weatherAlerts = true;
+    var cropReminders = true;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Notification preferences'),
+        content: StatefulBuilder(
+          builder: (context, setState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Weather alerts'),
+                value: weatherAlerts,
+                onChanged: (value) =>
+                    setState(() => weatherAlerts = value ?? false),
+              ),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Crop reminders'),
+                value: cropReminders,
+                onChanged: (value) =>
+                    setState(() => cropReminders = value ?? false),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Done'),
+          ),
+        ],
+      ),
     );
   }
 

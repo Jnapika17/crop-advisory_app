@@ -21,6 +21,7 @@ import '../../crop_advisory/screens/crop_advisory_screen.dart';
 import '../../soil_health/screens/soil_health_screen.dart';
 import '../../weather/screens/weather_screen.dart';
 import '../../market_prices/screens/market_prices_screen.dart';
+import '../../fertilizer/screens/fertilizer_calculator_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -92,9 +93,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             icon: const Icon(Icons.notifications_outlined),
             tooltip: 'View notifications',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications coming soon')),
-              );
+              _showNotifications(context);
             },
           ).animate().fadeIn(duration: 300.ms, delay: 100.ms).scale(),
           const SizedBox(width: 8),
@@ -166,11 +165,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.2, end: 0),
             const SizedBox(height: AppDimensions.paddingXS),
             Text(
-                  l10n.howCanWeHelpYou,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                )
+              l10n.howCanWeHelpYou,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            )
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 100.ms)
                 .slideX(begin: -0.2, end: 0),
@@ -185,9 +184,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             // Quick Actions with animation
             Text(
-                  l10n.quickActions,
-                  style: AppTextStyles.h4.copyWith(color: textColor),
-                )
+              l10n.quickActions,
+              style: AppTextStyles.h4.copyWith(color: textColor),
+            )
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 300.ms)
                 .slideX(begin: -0.2, end: 0),
@@ -195,41 +194,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Row(
               children: [
                 Expanded(
-                  child:
-                      QuickActionButton(
-                            icon: Icons.chat,
-                            label: l10n.askAI,
-                            color: AppColors.primary,
-                            onTap: () {
-                              context.pushWithSlide(const ChatbotScreen());
-                            },
-                          )
-                          .animate()
-                          .fadeIn(duration: 500.ms, delay: 400.ms)
-                          .scale(
-                            begin: const Offset(0.9, 0.9),
-                            end: const Offset(1, 1),
-                          ),
+                  child: QuickActionButton(
+                    icon: Icons.chat,
+                    label: l10n.askAI,
+                    color: AppColors.primary,
+                    onTap: () {
+                      context.pushWithSlide(const ChatbotScreen());
+                    },
+                  ).animate().fadeIn(duration: 500.ms, delay: 400.ms).scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1, 1),
+                      ),
                 ),
                 const SizedBox(width: AppDimensions.paddingMD),
                 Expanded(
-                  child:
-                      QuickActionButton(
-                            icon: Icons.camera_alt,
-                            label: l10n.scanPest,
-                            color: AppColors.accent,
-                            onTap: () {
-                              context.pushWithSlide(
-                                const PestDetectionScreen(),
-                              );
-                            },
-                          )
-                          .animate()
-                          .fadeIn(duration: 500.ms, delay: 500.ms)
-                          .scale(
-                            begin: const Offset(0.9, 0.9),
-                            end: const Offset(1, 1),
-                          ),
+                  child: QuickActionButton(
+                    icon: Icons.camera_alt,
+                    label: l10n.scanPest,
+                    color: AppColors.accent,
+                    onTap: () {
+                      context.pushWithSlide(
+                        const PestDetectionScreen(),
+                      );
+                    },
+                  ).animate().fadeIn(duration: 500.ms, delay: 500.ms).scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1, 1),
+                      ),
                 ),
               ],
             ),
@@ -237,9 +228,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
             // Features Section with animation
             Text(
-                  l10n.features,
-                  style: AppTextStyles.h4.copyWith(color: textColor),
-                )
+              l10n.features,
+              style: AppTextStyles.h4.copyWith(color: textColor),
+            )
                 .animate()
                 .fadeIn(duration: 400.ms, delay: 600.ms)
                 .slideX(begin: -0.2, end: 0),
@@ -255,60 +246,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               physics: const NeverScrollableScrollPhysics(),
               children: [
                 FeatureCard(
-                      icon: Icons.eco,
-                      title: l10n.cropAdvisory,
-                      description: l10n.cropAdvisoryDesc,
-                      color: AppColors.success,
-                      onTap: () =>
-                          context.pushWithSlide(const CropAdvisoryScreen()),
-                    )
+                  icon: Icons.eco,
+                  title: l10n.cropAdvisory,
+                  description: l10n.cropAdvisoryDesc,
+                  color: AppColors.success,
+                  onTap: () =>
+                      context.pushWithSlide(const CropAdvisoryScreen()),
+                )
                     .animate()
                     .fadeIn(duration: 500.ms, delay: 700.ms)
                     .slideY(begin: 0.2, end: 0),
-
                 FeatureCard(
-                      icon: Icons.grass,
-                      title: l10n.soilHealth,
-                      description: l10n.soilHealthDesc,
-                      color: AppColors.secondary,
-                      onTap: () =>
-                          context.pushWithSlide(const SoilHealthScreen()),
-                    )
+                  icon: Icons.science_outlined,
+                  title: 'Fertilizer Calculator',
+                  description: 'Calculate NPK needs for your field',
+                  color: AppColors.warning,
+                  onTap: () => context.pushWithSlide(
+                    const FertilizerCalculatorScreen(),
+                  ),
+                )
+                    .animate()
+                    .fadeIn(duration: 500.ms, delay: 1150.ms)
+                    .slideY(begin: 0.2, end: 0),
+                FeatureCard(
+                  icon: Icons.grass,
+                  title: l10n.soilHealth,
+                  description: l10n.soilHealthDesc,
+                  color: AppColors.secondary,
+                  onTap: () => context.pushWithSlide(const SoilHealthScreen()),
+                )
                     .animate()
                     .fadeIn(duration: 500.ms, delay: 800.ms)
                     .slideY(begin: 0.2, end: 0),
-
                 FeatureCard(
-                      icon: Icons.cloud,
-                      title: l10n.weatherForecast,
-                      description: l10n.weatherForecastDesc,
-                      color: AppColors.info,
-                      onTap: () => context.pushWithSlide(const WeatherScreen()),
-                    )
+                  icon: Icons.cloud,
+                  title: l10n.weatherForecast,
+                  description: l10n.weatherForecastDesc,
+                  color: AppColors.info,
+                  onTap: () => context.pushWithSlide(const WeatherScreen()),
+                )
                     .animate()
                     .fadeIn(duration: 500.ms, delay: 900.ms)
                     .slideY(begin: 0.2, end: 0),
-
                 FeatureCard(
-                      icon: Icons.bug_report,
-                      title: l10n.pestDetection,
-                      description: l10n.pestDetectionDesc,
-                      color: AppColors.error,
-                      onTap: () =>
-                          context.pushWithSlide(const PestDetectionScreen()),
-                    )
+                  icon: Icons.bug_report,
+                  title: l10n.pestDetection,
+                  description: l10n.pestDetectionDesc,
+                  color: AppColors.error,
+                  onTap: () =>
+                      context.pushWithSlide(const PestDetectionScreen()),
+                )
                     .animate()
                     .fadeIn(duration: 500.ms, delay: 1000.ms)
                     .slideY(begin: 0.2, end: 0),
-
                 FeatureCard(
-                      icon: Icons.show_chart,
-                      title: l10n.marketPrices,
-                      description: l10n.marketPricesDesc,
-                      color: AppColors.accent,
-                      onTap: () =>
-                          context.pushWithSlide(const MarketPricesScreen()),
-                    )
+                  icon: Icons.show_chart,
+                  title: l10n.marketPrices,
+                  description: l10n.marketPricesDesc,
+                  color: AppColors.accent,
+                  onTap: () =>
+                      context.pushWithSlide(const MarketPricesScreen()),
+                )
                     .animate()
                     .fadeIn(duration: 500.ms, delay: 1100.ms)
                     .slideY(begin: 0.2, end: 0),
@@ -316,6 +314,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const SizedBox(height: AppDimensions.paddingLG),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showNotifications(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => const SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Notifications',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.wb_sunny_outlined),
+                title: Text('Daily weather updates'),
+                subtitle:
+                    Text('Weather alerts and farming reminders appear here.'),
+              ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(Icons.check_circle_outline),
+                title: Text('You are all caught up'),
+                subtitle: Text('No new notifications right now.'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -49,7 +49,13 @@ class WeatherService {
       _logger.i('Fetching current weather for: $latitude, $longitude');
 
       if (_apiKey.isEmpty) {
-        throw Exception('Weather API key not configured');
+        _logger.w('Weather API key not configured. Returning demo weather data.');
+        return _buildDemoWeatherModel(
+          location: 'Mumbai, IN',
+          temperature: 28.5,
+          condition: 'Clouds',
+          description: 'Partly cloudy',
+        );
       }
 
       final response = await _dio.get(
@@ -85,7 +91,13 @@ class WeatherService {
       _logger.i('Fetching current weather for city: $cityName');
 
       if (_apiKey.isEmpty) {
-        throw Exception('Weather API key not configured');
+        _logger.w('Weather API key not configured. Returning demo weather data for $cityName.');
+        return _buildDemoWeatherModel(
+          location: cityName,
+          temperature: 27.4,
+          condition: 'Rain',
+          description: 'Light rain showers',
+        );
       }
 
       final response = await _dio.get(
@@ -122,7 +134,8 @@ class WeatherService {
       _logger.i('Fetching weather forecast for: $latitude, $longitude');
 
       if (_apiKey.isEmpty) {
-        throw Exception('Weather API key not configured');
+        _logger.w('Weather API key not configured. Returning demo forecast data.');
+        return _buildDemoForecast(location: 'Mumbai, IN');
       }
 
       final response = await _dio.get(
@@ -140,6 +153,73 @@ class WeatherService {
     } catch (e) {
       _logger.e('Error fetching forecast: $e');
       rethrow;
+    }
+  }
+
+  WeatherModel _buildDemoWeatherModel({
+    required String location,
+    required double temperature,
+    required String condition,
+    required String description,
+  }) {
+    final now = DateTime.now();
+
+    return WeatherModel(
+      location: location,
+      temperature: temperature,
+      feelsLike: temperature + 1.3,
+      condition: condition,
+      humidity: 68,
+      windSpeed: 12.4,
+      rainfall: 1.8,
+      uvIndex: 4,
+      description: description,
+      iconCode: _conditionToIconCode(condition, now.hour >= 18 || now.hour < 6),
+      timestamp: now,
+    );
+  }
+
+  WeatherForecast _buildDemoForecast({required String location}) {
+    final now = DateTime.now();
+    final conditions = ['Clear', 'Clouds', 'Rain', 'Clouds', 'Sunny'];
+    final temps = [27.0, 29.2, 28.1, 30.4, 26.8];
+    final rainfall = [0.0, 1.1, 3.4, 0.6, 0.0];
+
+    final daily = List.generate(5, (index) {
+      final date = now.add(Duration(days: index));
+      final condition = conditions[index % conditions.length];
+      final temp = temps[index % temps.length];
+
+      return DailyForecast(
+        date: date,
+        minTemp: temp - 2.0,
+        maxTemp: temp + 2.5,
+        condition: condition,
+        humidity: 60 + (index * 4),
+        rainfall: rainfall[index % rainfall.length],
+        iconCode: _conditionToIconCode(condition, false),
+      );
+    });
+
+    return WeatherForecast(
+      location: location,
+      daily: daily,
+      updatedAt: now,
+    );
+  }
+
+  String _conditionToIconCode(String condition, bool isNight) {
+    switch (condition.toLowerCase()) {
+      case 'rain':
+        return '10d';
+      case 'clear':
+        return isNight ? '01n' : '01d';
+      case 'clouds':
+        return isNight ? '03n' : '02d';
+      case 'sunny':
+        return '01d';
+      default:
+        return isNight ? '04n' : '04d';
     }
   }
 

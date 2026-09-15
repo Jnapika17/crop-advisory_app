@@ -1,4 +1,5 @@
 //Auth service which will handle the auth with fingerprint of facial recognition
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -15,6 +16,10 @@ class BiometricService {
   final LocalAuthentication _localAuth = LocalAuthentication();
   //check if device support the biometric auth
   Future<bool> isDeviceSupported() async {
+    if (kIsWeb) {
+      return false;
+    }
+
     try {
       return await _localAuth.isDeviceSupported();
     } catch (e) {
@@ -25,6 +30,10 @@ class BiometricService {
     
   }
   Future<bool> canAuthenticate() async {
+    if (kIsWeb) {
+      return false;
+    }
+
     try {
       final isSuporrted = await isDeviceSupported();
       if(!isSuporrted) return false;
@@ -42,6 +51,10 @@ class BiometricService {
 
     } }
     Future<List<BiometricType>> getAvailableBiometrics() async {
+    if (kIsWeb) {
+      return [];
+    }
+
     try {
       return await _localAuth.getAvailableBiometrics();
     } catch (e) {
@@ -57,6 +70,10 @@ class BiometricService {
     String reason = 'Authenticate to access your account',
     bool stickyAuth = false,
   }) async {
+    if (kIsWeb) {
+      return false;
+    }
+
     try {
       return await _localAuth.authenticate(
         localizedReason: reason,

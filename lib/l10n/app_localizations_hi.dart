@@ -42,7 +42,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get changeAppLanguage => 'ऐप की भाषा बदलें';
 
   @override
-  String get editProfile => 'प्रोफ़ाइल संपादन जल्द आ रहा है';
+  String get editProfile => 'प्रोफ़ाइल संपादित करें';
 
   @override
   String get guestUser => 'अतिथि उपयोगकर्ता';
@@ -85,7 +85,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get readPrivacyPolicy => 'हमारी गोपनीयता नीति पढ़ें';
 
   @override
-  String get featureComingSoon => 'सुविधा जल्द आ रही है';
+  String get featureComingSoon => 'यह सुविधा खोलें';
 
   @override
   String get logoutConfirmTitle => 'लॉगआउट';

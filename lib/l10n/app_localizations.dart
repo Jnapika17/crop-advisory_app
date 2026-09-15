@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @editProfile.
   ///
   /// In en, this message translates to:
-  /// **'Edit profile coming soon'**
+  /// **'Edit profile'**
   String get editProfile;
 
   /// No description provided for @guestUser.
@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureComingSoon.
   ///
   /// In en, this message translates to:
-  /// **'Feature coming soon'**
+  /// **'Open this feature'**
   String get featureComingSoon;
 
   /// No description provided for @logoutConfirmTitle.

@@ -1,5 +1,5 @@
 /// Crop Advisory Screen
-/// 
+///
 /// Provides personalized crop recommendations based on soil and location
 
 import 'package:flutter/material.dart';
@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import '../../../services/gemini_service.dart';
 
 class CropAdvisoryScreen extends ConsumerStatefulWidget {
   const CropAdvisoryScreen({super.key});
@@ -20,6 +21,9 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _selectedSoilType;
   String? _selectedSeason;
+  String? _selectedCrop;
+  String? _recommendation;
+  bool _isLoading = false;
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _previousCropController = TextEditingController();
   final stt.SpeechToText _speech = stt.SpeechToText();
@@ -38,6 +42,18 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
     'Kharif (Monsoon)',
     'Rabi (Winter)',
     'Zaid (Summer)',
+  ];
+  final List<String> _crops = [
+    'Rice',
+    'Wheat',
+    'Maize',
+    'Cotton',
+    'Soybean',
+    'Potato',
+    'Tomato',
+    'Onion',
+    'Chilli',
+    'Sugarcane',
   ];
 
   @override
@@ -75,6 +91,7 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
     _previousCropController.dispose();
     super.dispose();
   }
+
   //toggle voice mode method to start and stop listening
   Future<void> _toggleVoiceInput() async {
     final permission = await Permission.microphone.request();
@@ -84,7 +101,9 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission is required for speech input')),
+          const SnackBar(
+              content:
+                  Text('Microphone permission is required for speech input')),
         );
       }
       return;
@@ -95,7 +114,9 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
       if (!_speechAvailable) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Speech recognition not available on this device')),
+            const SnackBar(
+                content:
+                    Text('Speech recognition not available on this device')),
           );
         }
         return;
@@ -120,6 +141,7 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,8 +169,26 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
               ),
               const SizedBox(height: AppDimensions.paddingXL),
 
+              DropdownButtonFormField<String>(
+                initialValue: _selectedCrop,
+                decoration: const InputDecoration(
+                  labelText: 'Crop',
+                  prefixIcon: Icon(Icons.eco_outlined),
+                ),
+                items: _crops
+                    .map((crop) => DropdownMenuItem(
+                          value: crop,
+                          child: Text(crop),
+                        ))
+                    .toList(),
+                onChanged: (value) => setState(() => _selectedCrop = value),
+                validator: (value) =>
+                    value == null ? 'Please select a crop' : null,
+              ),
+              const SizedBox(height: AppDimensions.paddingMD),
+
               // Location
-                            // Location
+              // Location
               TextFormField(
                 controller: _locationController,
                 readOnly: _isListening,
@@ -164,7 +204,9 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
                   prefixIcon: const Icon(Icons.location_on_outlined),
                   suffixIcon: IconButton(
                     tooltip: _speechAvailable
-                        ? (_isListening ? 'Stop listening' : 'Start voice input')
+                        ? (_isListening
+                            ? 'Stop listening'
+                            : 'Start voice input')
                         : 'Speech recognition unavailable',
                     icon: Icon(
                       _isListening ? Icons.mic : Icons.mic_none,
@@ -176,12 +218,14 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
                   ),
                   border: _isListening
                       ? const OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.error, width: 2),
+                          borderSide:
+                              BorderSide(color: AppColors.error, width: 2),
                         )
                       : null,
                   enabledBorder: _isListening
                       ? const OutlineInputBorder(
-                          borderSide: BorderSide(color: AppColors.error, width: 2),
+                          borderSide:
+                              BorderSide(color: AppColors.error, width: 2),
                         )
                       : null,
                 ),
@@ -253,95 +297,64 @@ class _CropAdvisoryScreenState extends ConsumerState<CropAdvisoryScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _getRecommendations,
+                  onPressed: _isLoading ? null : _getRecommendations,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(AppDimensions.paddingMD),
                   ),
-                  child: const Text('Get Recommendations'),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Get Recommendations'),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _getRecommendations() {
-    if (_formKey.currentState!.validate()) {
-      // TODO: Integrate with Gemini service for recommendations
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Crop Recommendations'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Based on your inputs:',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: AppDimensions.paddingMD),
-              _buildRecommendationItem('Rice', 'High yield potential in your soil'),
-              _buildRecommendationItem('Wheat', 'Good for current season'),
-              _buildRecommendationItem('Sugarcane', 'Profitable crop option'),
-              const SizedBox(height: AppDimensions.paddingMD),
-              Text(
-                'Note: This is a demo. AI integration coming soon!',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.info,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  Widget _buildRecommendationItem(String crop, String reason) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppDimensions.paddingSM),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.check_circle,
-            color: AppColors.success,
-            size: AppDimensions.iconSM,
-          ),
-          const SizedBox(width: AppDimensions.paddingSM),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  crop,
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  reason,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
+              if (_recommendation != null) ...[
+                const SizedBox(height: AppDimensions.paddingXL),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppDimensions.paddingMD),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('AI Crop Advisory', style: AppTextStyles.h4),
+                        const SizedBox(height: AppDimensions.paddingMD),
+                        SelectableText(_recommendation!),
+                      ],
+                    ),
                   ),
                 ),
               ],
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  Future<void> _getRecommendations() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isLoading = true;
+      _recommendation = null;
+    });
+    try {
+      final result = await ref.read(geminiServiceProvider).getCropAdvisory(
+            cropType: _selectedCrop!,
+            soilType: _selectedSoilType!,
+            season: _selectedSeason!,
+            location: _locationController.text.trim(),
+          );
+      if (mounted) setState(() => _recommendation = result);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unable to get advisory: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 }

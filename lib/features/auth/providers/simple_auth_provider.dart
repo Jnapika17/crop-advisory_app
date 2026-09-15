@@ -1,22 +1,38 @@
 /// Simple Authentication Provider
-/// 
-/// Simplified auth provider without code generation for quick development
+///
+/// Simplified auth provider without code generation for quick development.
+/// Falls back to local SharedPreferences storage when Supabase is not configured.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../core/config/env_config.dart';
 import '../../../services/biometric_service.dart';
+
+const String _demoEmailKey = 'demo_auth_email';
+const String _demoPasswordKey = 'demo_auth_password';
+const String _demoNameKey = 'demo_auth_name';
+const String _demoSessionKey = 'demo_auth_session';
 
 // ============================================================================
 // REACTIVE AUTH STATE
-// A StreamProvider that reacts to Supabase auth state changes in real-time.
-// This replaces the broken static Provider<User?> that never re-evaluated.
 // ============================================================================
 
 /// Reactive current user provider — updates automatically on sign in/out.
 final currentUserProvider = StreamProvider<User?>((ref) {
-  return Supabase.instance.client.auth.onAuthStateChange.map((data) {
-    return data.session?.user;
-  });
+  try {
+    final config = EnvConfig.fromEnv();
+    if (!config.isValid) {
+      return Stream.value(null);
+    }
+
+    return Supabase.instance.client.auth.onAuthStateChange.map((data) {
+      return data.session?.user;
+    });
+  } catch (_) {
+    return Stream.value(null);
+  }
 });
 
 /// Convenience provider: true if user is currently logged in.
@@ -34,7 +50,8 @@ final isLoggedInProvider = Provider<bool>((ref) {
 // ============================================================================
 
 /// Auth state provider
-final authStateProvider = StateNotifierProvider<AuthNotifier, AsyncValue<void>>((ref) {
+final authStateProvider =
+    StateNotifierProvider<AuthNotifier, AsyncValue<void>>((ref) {
   return AuthNotifier();
 });
 
@@ -42,14 +59,9 @@ final authStateProvider = StateNotifierProvider<AuthNotifier, AsyncValue<void>>(
 class AuthNotifier extends StateNotifier<AsyncValue<void>> {
   AuthNotifier() : super(const AsyncValue.data(null));
 
-  final _supabase = Supabase.instance.client;
+  bool get _isBackendConfigured => EnvConfig.fromEnv().isValid;
 
   /// Sign up with email and password.
-  ///
-  /// After successful signup, Supabase sends a confirmation email.
-  /// The farmer_profiles row is created automatically by a database trigger
-  /// (handle_new_user) — we do NOT insert it manually here to avoid
-  /// race conditions and RLS violations before the user confirms their email.
   Future<void> signUpWithEmail({
     required String email,
     required String password,
@@ -59,7 +71,24 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      final response = await _supabase.auth.signUp(
+      if (!_isBackendConfigured) {
+        final prefs = await SharedPreferences.getInstance();
+        final normalizedEmail = email.trim().toLowerCase();
+        final name = fullName.trim();
+
+        final existingEmail = prefs.getString(_demoEmailKey);
+        if (existingEmail != null && existingEmail.toLowerCase() == normalizedEmail) {
+          throw Exception('An account with this email already exists. Please sign in.');
+        }
+
+        await prefs.setString(_demoEmailKey, normalizedEmail);
+        await prefs.setString(_demoPasswordKey, password);
+        await prefs.setString(_demoNameKey, name);
+        await prefs.setString(_demoSessionKey, normalizedEmail);
+        return;
+      }
+
+      final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
         data: {
@@ -72,16 +101,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
       if (response.user == null) {
         throw Exception('Sign up failed. Please try again.');
       }
-
-      // Email confirmation is required; the user must verify their email
-      // before they can sign in. The farmer_profiles row is created by a
-      // Supabase trigger (handle_new_user) automatically on auth.users insert.
     });
   }
 
   /// Sign in with email and password.
-  ///
-  /// Throws on failure so the UI can display the error correctly.
   Future<void> signInWithEmail({
     required String email,
     required String password,
@@ -89,7 +112,33 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      final response = await _supabase.auth.signInWithPassword(
+      if (!_isBackendConfigured) {
+        final prefs = await SharedPreferences.getInstance();
+        final normalizedEmail = email.trim().toLowerCase();
+        final storedEmail = prefs.getString(_demoEmailKey)?.trim().toLowerCase();
+        final storedPassword = prefs.getString(_demoPasswordKey);
+        final storedSession = prefs.getString(_demoSessionKey)?.trim().toLowerCase();
+
+        final hasExistingDemoSession =
+            storedSession != null && storedSession.isNotEmpty;
+
+        if (hasExistingDemoSession && storedEmail == normalizedEmail) {
+          await prefs.setString(_demoSessionKey, normalizedEmail);
+          return;
+        }
+
+        if (storedEmail == null ||
+            storedPassword == null ||
+            storedEmail != normalizedEmail ||
+            storedPassword != password) {
+          throw Exception('Demo sign in failed. Please sign up first.');
+        }
+
+        await prefs.setString(_demoSessionKey, storedEmail);
+        return;
+      }
+
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
@@ -100,12 +149,32 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     });
   }
 
+  Future<void> sendPasswordReset(String email) async {
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() async {
+      if (!_isBackendConfigured) {
+        throw Exception(
+          'Password reset is only available when Supabase credentials are configured.',
+        );
+      }
+
+      await Supabase.instance.client.auth.resetPasswordForEmail(email);
+    });
+  }
+
   /// Sign in with phone OTP
   Future<void> signInWithPhone(String phoneNumber) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      await _supabase.auth.signInWithOtp(phone: phoneNumber);
+      if (!_isBackendConfigured) {
+        throw Exception(
+          'Phone OTP is only available when Supabase credentials are configured.',
+        );
+      }
+
+      await Supabase.instance.client.auth.signInWithOtp(phone: phoneNumber);
     });
   }
 
@@ -117,7 +186,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      final response = await _supabase.auth.verifyOTP(
+      if (!_isBackendConfigured) {
+        throw Exception(
+          'Phone OTP verification is only available when Supabase credentials are configured.',
+        );
+      }
+
+      final response = await Supabase.instance.client.auth.verifyOTP(
         phone: phoneNumber,
         token: otp,
         type: OtpType.sms,
@@ -134,7 +209,13 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      await _supabase.auth.signOut();
+      if (!_isBackendConfigured) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_demoSessionKey);
+        return;
+      }
+
+      await Supabase.instance.client.auth.signOut();
     });
   }
 
@@ -171,15 +252,10 @@ class BiometricAuthNotifier extends StateNotifier<AsyncValue<void>> {
   }
 
   /// Perform biometric login
-  ///
-  /// 1. Show biometric prompt
-  /// 2. If authenticated, retrieve stored credentials
-  /// 3. Sign in with Supabase using stored credentials
   Future<void> authenticateWithBiometrics() async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() async {
-      // Step 1: Biometric scan
       final authenticated = await _bioService.authenticate(
         reason: 'Scan your fingerprint to login',
       );
@@ -187,13 +263,13 @@ class BiometricAuthNotifier extends StateNotifier<AsyncValue<void>> {
         throw Exception('Biometric authentication cancelled');
       }
 
-      // Step 2: Get stored credentials
       final creds = await _bioService.getCredentials();
       if (creds == null) {
-        throw Exception('No saved credentials found. Please login with email/password.');
+        throw Exception(
+          'No saved credentials found. Please login with email/password.',
+        );
       }
 
-      // Step 3: Sign in with Supabase
       await _authNotifier.signInWithEmail(
         email: creds['email']!,
         password: creds['password']!,
@@ -225,7 +301,8 @@ class BiometricAuthNotifier extends StateNotifier<AsyncValue<void>> {
 }
 
 /// Biometric auth provider
-final biometricAuthProvider = StateNotifierProvider<BiometricAuthNotifier, AsyncValue<void>>((ref) {
+final biometricAuthProvider =
+    StateNotifierProvider<BiometricAuthNotifier, AsyncValue<void>>((ref) {
   final bioService = ref.watch(biometricServiceProvider);
   final authNotifier = ref.watch(authStateProvider.notifier);
   return BiometricAuthNotifier(bioService, authNotifier);

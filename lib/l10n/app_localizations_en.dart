@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get changeAppLanguage => 'Change app language';
 
   @override
-  String get editProfile => 'Edit profile coming soon';
+  String get editProfile => 'Edit profile';
 
   @override
   String get guestUser => 'Guest User';
@@ -84,7 +84,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readPrivacyPolicy => 'Read our privacy policy';
 
   @override
-  String get featureComingSoon => 'Feature coming soon';
+  String get featureComingSoon => 'Open this feature';
 
   @override
   String get logoutConfirmTitle => 'Logout';

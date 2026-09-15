@@ -31,7 +31,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-    @override
+
+  @override
   void initState() {
     super.initState();
     _checkBiometricAvailability();
@@ -47,15 +48,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
     }
   }
+
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
     try {
-      await ref
-          .read(authProvider.notifier)
-          .signInWithEmail(
+      await ref.read(authProvider.notifier).signInWithEmail(
             email: _emailController.text.trim(),
             password: _passwordController.text,
           );
@@ -98,11 +98,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   // Add the biometric login method and enable dialog
-    Future<void> _handleBiometricLogin() async {
+  Future<void> _handleBiometricLogin() async {
     setState(() => _isLoading = true);
 
     try {
-      await ref.read(biometricAuthProvider.notifier).authenticateWithBiometrics();
+      await ref
+          .read(biometricAuthProvider.notifier)
+          .authenticateWithBiometrics();
 
       final bioState = ref.read(biometricAuthProvider);
       if (bioState.hasError) {
@@ -166,6 +168,128 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     );
   }
+
+  Future<void> _showPasswordResetDialog() async {
+    final controller = TextEditingController(text: _emailController.text);
+    final email = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reset password'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(labelText: 'Email'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, controller.text.trim()),
+            child: const Text('Send link'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (email == null || email.isEmpty || !email.contains('@') || !mounted)
+      return;
+    try {
+      await ref.read(authProvider.notifier).sendPasswordReset(email);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Password reset link sent. Check your email.')),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not send reset link: $error')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showPhoneLoginDialog() async {
+    final phoneController = TextEditingController();
+    final phone = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Phone login'),
+        content: TextField(
+          controller: phoneController,
+          keyboardType: TextInputType.phone,
+          decoration: const InputDecoration(
+            labelText: 'Phone number',
+            hintText: '+91 9876543210',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, phoneController.text.trim()),
+            child: const Text('Send OTP'),
+          ),
+        ],
+      ),
+    );
+    phoneController.dispose();
+    if (phone == null || phone.isEmpty || !mounted) return;
+    try {
+      await ref.read(authProvider.notifier).signInWithPhone(phone);
+      if (mounted) _showOtpDialog(phone);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not send OTP: $error')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showOtpDialog(String phone) async {
+    final otpController = TextEditingController();
+    final otp = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Enter OTP'),
+        content: TextField(
+          controller: otpController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: '6-digit code'),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () =>
+                Navigator.pop(dialogContext, otpController.text.trim()),
+            child: const Text('Verify'),
+          ),
+        ],
+      ),
+    );
+    otpController.dispose();
+    if (otp == null || otp.isEmpty || !mounted) return;
+    try {
+      await ref
+          .read(authProvider.notifier)
+          .verifyPhoneOtp(phoneNumber: phone, otp: otp);
+      if (mounted) Navigator.of(context).pushReplacementNamed(Routes.home);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('OTP verification failed: $error')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -266,12 +390,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Navigate to forgot password screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Forgot password feature coming soon'),
-                        ),
-                      );
+                      _showPasswordResetDialog();
                     },
                     child: Text(
                       'Forgot Password?',
@@ -302,7 +421,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: AppDimensions.paddingLG),
 
                 // Divider
-                                // Divider
+                // Divider
                 Row(
                   children: [
                     const Expanded(child: Divider()),
@@ -340,15 +459,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
 
                 // Phone login button
-                
 
                 // Phone login button
                 OutlinedButton.icon(
                   onPressed: () {
-                    // TODO: Navigate to phone login
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Phone login coming soon')),
-                    );
+                    _showPhoneLoginDialog();
                   },
                   icon: const Icon(Icons.phone),
                   label: const Text('Sign in with Phone'),

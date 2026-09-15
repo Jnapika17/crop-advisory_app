@@ -41,19 +41,35 @@ class EnvConfig {
 
   /// Factory constructor to create EnvConfig from environment variables
   factory EnvConfig.fromEnv() {
+    final supabaseUrl = dotenv.get('SUPABASE_URL', fallback: '');
+    final supabaseAnonKey = dotenv.get('SUPABASE_ANON_KEY', fallback: '');
+    final geminiApiKey = dotenv.get('GEMINI_API_KEY', fallback: '');
+
     return EnvConfig(
-      supabaseUrl: dotenv.get('SUPABASE_URL', fallback: ''),
-      supabaseAnonKey: dotenv.get('SUPABASE_ANON_KEY', fallback: ''),
-      geminiApiKey: dotenv.get('GEMINI_API_KEY', fallback: ''),
-      weatherApiKey: dotenv.maybeGet('WEATHER_API_KEY'),
-      marketApiKey: dotenv.maybeGet('MARKET_API_KEY'),
-      hfApiKey: dotenv.env['HF_API_KEY'],
+      supabaseUrl: supabaseUrl.trim(),
+      supabaseAnonKey: supabaseAnonKey.trim(),
+      geminiApiKey: geminiApiKey.trim(),
+      weatherApiKey: dotenv.maybeGet('WEATHER_API_KEY')?.trim(),
+      marketApiKey: dotenv.maybeGet('MARKET_API_KEY')?.trim(),
+      hfApiKey: dotenv.env['HF_API_KEY']?.trim(),
     );
+  }
+
+  static bool _isPlaceholder(String? value) {
+    if (value == null) return true;
+    final normalized = value.trim().toLowerCase();
+    return normalized.isEmpty ||
+        normalized.contains('your_') ||
+        normalized.contains('your-') ||
+        normalized.contains('your ') ||
+        normalized.contains('replace') ||
+        normalized.contains('example') ||
+        normalized.endsWith('_here');
   }
 
   /// Validates that all required configuration values are present
   bool get isValid {
-    return supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+    return !_isPlaceholder(supabaseUrl) && !_isPlaceholder(supabaseAnonKey);
   }
 }
 
