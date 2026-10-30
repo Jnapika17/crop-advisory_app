@@ -9,17 +9,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'env_config.g.dart';
 
-/// Environment configuration class that holds all app configuration values
+/// Optional API configuration used by weather and market-data services.
 class EnvConfig {
-  /// Supabase project URL for backend connection
-  final String supabaseUrl;
-
-  /// Supabase anonymous key for public API access
-  final String supabaseAnonKey;
-
-  /// Google Gemini API key for AI chatbot functionality
-  final String geminiApiKey;
-
   /// Weather API key for weather data (optional)
   final String? weatherApiKey;
 
@@ -31,9 +22,6 @@ class EnvConfig {
   final String? hfApiKey;
 
   const EnvConfig({
-    required this.supabaseUrl,
-    required this.supabaseAnonKey,
-    required this.geminiApiKey,
     this.weatherApiKey,
     this.marketApiKey,
     this.hfApiKey,
@@ -41,36 +29,13 @@ class EnvConfig {
 
   /// Factory constructor to create EnvConfig from environment variables
   factory EnvConfig.fromEnv() {
-    final supabaseUrl = dotenv.get('SUPABASE_URL', fallback: '');
-    final supabaseAnonKey = dotenv.get('SUPABASE_ANON_KEY', fallback: '');
-    final geminiApiKey = dotenv.get('GEMINI_API_KEY', fallback: '');
-
     return EnvConfig(
-      supabaseUrl: supabaseUrl.trim(),
-      supabaseAnonKey: supabaseAnonKey.trim(),
-      geminiApiKey: geminiApiKey.trim(),
       weatherApiKey: dotenv.maybeGet('WEATHER_API_KEY')?.trim(),
       marketApiKey: dotenv.maybeGet('MARKET_API_KEY')?.trim(),
       hfApiKey: dotenv.env['HF_API_KEY']?.trim(),
     );
   }
 
-  static bool _isPlaceholder(String? value) {
-    if (value == null) return true;
-    final normalized = value.trim().toLowerCase();
-    return normalized.isEmpty ||
-        normalized.contains('your_') ||
-        normalized.contains('your-') ||
-        normalized.contains('your ') ||
-        normalized.contains('replace') ||
-        normalized.contains('example') ||
-        normalized.endsWith('_here');
-  }
-
-  /// Validates that all required configuration values are present
-  bool get isValid {
-    return !_isPlaceholder(supabaseUrl) && !_isPlaceholder(supabaseAnonKey);
-  }
 }
 
 /// Riverpod provider for EnvConfig

@@ -32,15 +32,15 @@ Crop Advisory empowers farmers with scientific insights in their native language
 - **Offline Mode**: Basic features available without internet connectivity
 
 ### Technical Features
-- **Authentication**: Secure user authentication via Supabase
-- **Database**: Cloud-based data storage using Supabase
-- **AI Integration**: Google Gemini API for intelligent responses
+- **Authentication**: Firebase Authentication with email and phone sign-in
+- **Database**: Firebase Cloud Firestore for user profiles
+- **AI Integration**: Gemini through Firebase AI Logic
 - **Cross-platform**: Built with Flutter for Android and iOS
 
 ## Tech Stack
 
 - **Frontend**: Flutter/Dart
-- **Backend**: Supabase (Database + Authentication)
+- **Backend**: Firebase Authentication, Cloud Firestore, and Firebase AI Logic
 - **AI/ML**: Google Gemini API
 - **State Management**: Provider/Riverpod
 - **Local Storage**: Hive/SharedPreferences
@@ -72,25 +72,20 @@ flutter pub get
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the root directory:
+Copy `.env.example` to `.env` and configure external data APIs as needed:
 
 ```env
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-GEMINI_API_KEY=your_gemini_api_key
+WEATHER_API_KEY=your_openweathermap_api_key
 ```
 
-### 4. Supabase Setup
+Firebase is initialized with `lib/firebase_options.dart`. In the Firebase console, enable Email/Password (and Phone if needed) under Authentication, create a Cloud Firestore database, and enable Gemini in Firebase AI Logic. Apply owner-scoped Firestore security rules before deploying.
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Copy your project URL and anon key
-3. Set up database tables (schemas provided in `/supabase` folder)
-4. Enable authentication methods (Email, Phone, etc.)
+### 4. Firebase Setup
 
-### 5. Gemini API Setup
-
-1. Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Add the key to your `.env` file
+1. Create or select the Firebase project configured in `lib/firebase_options.dart`.
+2. Register platform apps and regenerate options with FlutterFire CLI when using a different project.
+3. Enable Firebase Authentication and Cloud Firestore in the console.
+4. Enable Firebase AI Logic and verify the Gemini model is available for the project.
 
 ### 6. Run the Application
 
@@ -134,7 +129,6 @@ crop_advisory/
 │   ├── icons/
 │   └── translations/        # Language files
 ├── test/                    # Unit and widget tests
-├── supabase/                # Database schemas
 └── pubspec.yaml
 ```
 
@@ -144,8 +138,9 @@ crop_advisory/
 dependencies:
   flutter:
     sdk: flutter
-  supabase_flutter: ^latest
-  google_generative_ai: ^latest
+  firebase_auth: ^latest
+  cloud_firestore: ^latest
+  firebase_ai: ^latest
   provider: ^latest
   image_picker: ^latest
   geolocator: ^latest

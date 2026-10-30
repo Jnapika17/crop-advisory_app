@@ -65,14 +65,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text(
-              '✅ Account created! Please check your email to confirm your account, then sign in.',
-            ),
+            content: Text('Account created successfully.'),
             backgroundColor: AppColors.success,
-            duration: Duration(seconds: 5),
           ),
         );
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed(Routes.home);
       }
     } catch (e) {
       if (mounted) {
@@ -114,7 +111,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppDimensions.paddingSM),
-                
+
                 Text(
                   'Create your account to get started',
                   style: AppTextStyles.bodyMedium.copyWith(
@@ -123,7 +120,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppDimensions.paddingXL),
-                
+
                 // Full Name field
                 TextFormField(
                   controller: _nameController,
@@ -144,7 +141,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                
+
                 // Email field
                 TextFormField(
                   controller: _emailController,
@@ -165,7 +162,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                
+
                 // Phone field (optional)
                 TextFormField(
                   controller: _phoneController,
@@ -177,7 +174,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                
+
                 // Password field
                 TextFormField(
                   controller: _passwordController,
@@ -208,7 +205,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                
+
                 // Confirm Password field
                 TextFormField(
                   controller: _confirmPasswordController,
@@ -240,7 +237,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: AppDimensions.paddingMD),
-                
+
                 // Terms and conditions
                 Row(
                   children: [
@@ -264,7 +261,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
-                
+
                 // Register button
                 ElevatedButton(
                   onPressed: _isLoading ? null : _handleRegister,
@@ -282,7 +279,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       : const Text('Create Account'),
                 ),
                 const SizedBox(height: AppDimensions.paddingLG),
-                
+
                 // Sign in link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

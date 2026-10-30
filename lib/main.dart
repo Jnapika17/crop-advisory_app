@@ -3,7 +3,7 @@
 /// This file initializes all core services and starts the Flutter application.
 /// It handles:
 /// - Environment configuration loading
-/// - Supabase initialization
+/// - Firebase initialization
 /// - Riverpod provider scope setup
 /// - App theme and navigation configuration
 
@@ -12,12 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:logger/logger.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'services/biometric_service.dart';
 import 'core/config/env_config.dart';
+import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
 import 'core/providers/language_provider.dart';
@@ -51,7 +53,7 @@ final logger = Logger(
 /// This function:
 /// 1. Ensures Flutter binding is initialized
 /// 2. Loads environment variables from .env file
-/// 3. Initializes Supabase with credentials
+/// 3. Initializes Firebase
 /// 4. Sets system UI overlays (status bar, navigation bar)
 /// 5. Launches the app with Riverpod provider scope
 void main() async {
@@ -66,41 +68,14 @@ void main() async {
     await dotenv.load(fileName: '.env', isOptional: true);
     logger.i('Environment configuration loaded');
 
-    // Validate environment configuration
-    final config = EnvConfig.fromEnv();
-    if (!config.isValid) {
-      logger.w(
-        'Supabase environment variables are missing. Running in demo mode. '
-        'Set SUPABASE_URL and SUPABASE_ANON_KEY in .env to enable full backend features.',
-      );
-    } else {
-      logger.i('Environment configuration validated');
-
-      // Initialize Supabase
-      logger.i('Initializing Supabase...');
-      await Supabase.initialize(
-        url: config.supabaseUrl,
-        anonKey: config.supabaseAnonKey,
-        authOptions: const FlutterAuthClientOptions(
-          authFlowType: AuthFlowType.pkce,
-        ),
-      );
-
-      // Listen for auth state changes to ensure tokens are refreshed
-      Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-        final AuthChangeEvent event = data.event;
-
-        // The Supabase SDK automatically handles token refresh when this listener is active.
-        // You can add routing logic here if you want to force users to the login screen
-        // if their session expires while using the app.
-        if (event == AuthChangeEvent.signedOut) {
-          logger.i('User signed out');
-        } else if (event == AuthChangeEvent.tokenRefreshed) {
-          logger.i('Auth token refreshed successfully');
-        }
-      });
-      logger.i('Supabase initialized successfully');
-    }
+    logger.i('Initializing Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseAuth.instance.authStateChanges().listen((user) {
+      logger.i(user == null ? 'User signed out' : 'Firebase user session active');
+    });
+    logger.i('Firebase initialized successfully');
 
     // Set system UI overlay style
     SystemChrome.setSystemUIOverlayStyle(
@@ -253,29 +228,8 @@ class SplashScreen extends ConsumerStatefulWidget {
 }
 
 class _SplashScreenState extends ConsumerState<SplashScreen> {
-  bool _hasSupabaseClient() {
-    try {
-      Supabase.instance.client;
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
   Future<bool> _hasActiveSession() async {
-    try {
-      if (Supabase.instance.client.auth.currentSession != null) {
-        return true;
-      }
-    } catch (_) {}
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final demoSession = prefs.getString('demo_auth_session');
-      return demoSession != null && demoSession.isNotEmpty;
-    } catch (_) {
-      return false;
-    }
+    return FirebaseAuth.instance.currentUser != null;
   }
 
   @override
@@ -324,17 +278,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
               final creds = await bioService.getCredentials();
               if (creds != null) {
                 try {
-                  // Sign in silently with stored credentials only if Supabase is initialized
-                  if (_hasSupabaseClient()) {
-                    await Supabase.instance.client.auth.signInWithPassword(
-                      email: creds['email']!,
-                      password: creds['password']!,
-                    );
-                    if (mounted) {
-                      Navigator.of(context).pushReplacementNamed(Routes.home);
-                    }
-                    return;
+                  await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: creds['email']!,
+                    password: creds['password']!,
+                  );
+                  if (mounted) {
+                    Navigator.of(context).pushReplacementNamed(Routes.home);
                   }
+                  return;
                 } catch (e) {
                   logger.e('Biometric auto-login failed: $e');
                   // Fall through to login screen

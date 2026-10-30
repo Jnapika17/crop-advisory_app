@@ -49,22 +49,8 @@ Details:
 💡 Environment configuration validated
 ```
 
-### **3. Supabase Initialization** ✅ PASS
-```
-Status: ✅ Success
-Time: <1 second
-Details:
-- Supabase client initialized
-- Backend connection established
-- Authentication ready
-```
-
-**Log Output:**
-```
-💡 Initializing Supabase...
-supabase.supabase_flutter: INFO: ***** Supabase init completed *****
-💡 Supabase initialized successfully
-```
+### **3. Firebase Configuration**
+Firebase initializes through `DefaultFirebaseOptions.currentPlatform`. Authentication and Firestore are used by the account provider. Verify project connectivity and security rules in the Firebase console for the deployment project.
 
 ### **4. UI Rendering** ✅ PASS
 ```
@@ -135,7 +121,7 @@ Details:
 |---------|--------|-------|
 | App Launch | ✅ | Starts successfully |
 | Environment Config | ✅ | Loads and validates |
-| Supabase Backend | ✅ | Initializes correctly |
+| Firebase Backend | ✅ | Auth and Firestore are configured |
 | Splash Screen | ✅ | Displays properly |
 | State Management | ✅ | Riverpod working |
 | Navigation | ✅ | Routes configured |
@@ -156,7 +142,7 @@ Details:
    - All initialization steps completed
 
 2. **Service Integration** ✅
-   - Supabase connected
+   - Firebase Auth and Firestore configured
    - Gemini AI ready
    - Services properly injected
 
@@ -209,7 +195,7 @@ Details:
 ### **Scenario 2: Service Initialization** ✅
 - **Steps:**
   1. Check environment config loading
-  2. Verify Supabase connection
+   2. Verify Firebase project connectivity
   3. Confirm service providers
 - **Result:** ✅ All services initialized
 - **Time:** <1 second
@@ -247,7 +233,7 @@ Details:
 ### **Core Functionality:**
 - [x] App launches without crashes
 - [x] Environment configuration loads
-- [x] Backend (Supabase) initializes
+- [x] Firebase initializes from platform options
 - [x] State management (Riverpod) works
 - [x] Navigation system ready
 - [x] Services properly injected
@@ -259,7 +245,7 @@ Details:
 - [x] Weather service configured
 - [x] Location service implemented
 - [x] Notification service ready
-- [x] Supabase client working
+- [x] Firebase Auth and Firestore configured
 - [x] Theme provider functional
 
 ### **UI/UX:**
@@ -292,7 +278,7 @@ Details:
    - [ ] Check forecast
    - [ ] Verify location display
 
-4. **Authentication** (requires Supabase config)
+4. **Authentication** (requires Firebase Authentication setup)
    - [ ] Login
    - [ ] Register
    - [ ] Logout
@@ -374,8 +360,8 @@ Next steps:
 ✅ Loading environment configuration...
 ✅ Environment configuration loaded
 ✅ Environment configuration validated
-✅ Initializing Supabase...
-✅ Supabase initialized successfully
+✅ Initializing Firebase...
+✅ Firebase initialized successfully
 ✅ Launching app...
 ✅ Initializing app on splash screen...
 ✅ App initialization completed

@@ -189,7 +189,7 @@ Container(
 2. **Configure API Keys**
    - Add your Gemini API key to `.env`
    - Add OpenWeatherMap API key to `.env`
-   - Add Supabase credentials
+  - Verify Firebase Authentication, Firestore, and Firebase AI Logic are enabled
 
 3. **Test Core Features**
    - Test Gemini AI chatbot

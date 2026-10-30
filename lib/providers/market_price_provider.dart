@@ -165,7 +165,7 @@ class MarketPricesNotifier extends StateNotifier<MarketPricesState> {
     if (_geminiService == null) {
       state = state.copyWith(
         aiAdvice:
-            'AI advice is not available. Please configure Gemini API key.',
+            'Local market insight: compare nearby mandis, check price movement over the last 3 days, and sell when prices are stable or rising. This fallback advice is shown because the AI backend is not connected in the current environment.',
       );
       return;
     }
@@ -197,7 +197,8 @@ class MarketPricesNotifier extends StateNotifier<MarketPricesState> {
       _logger.e('Error fetching AI advice: $e');
       state = state.copyWith(
         isAdviceLoading: false,
-        aiAdvice: 'Could not generate AI advice. Please try again later.',
+        aiAdvice:
+            'Local market insight: prioritize nearby mandi prices, compare transport cost, and sell when the trend is stable or rising. The AI backend is unavailable right now, so this guidance is generated locally.',
       );
     }
   }

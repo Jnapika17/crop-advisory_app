@@ -25,6 +25,10 @@ class QuickActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final lightOverlay = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.white.withValues(alpha: 0.95);
+    final unifiedColor = AppColors.primary;
+
+    final activeColor = color == AppColors.primary ? unifiedColor : color;
 
     return Semantics(
       button: true,
@@ -33,24 +37,25 @@ class QuickActionButton extends StatelessWidget {
         message: label,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             gradient: LinearGradient(
               colors: [
-                color.withValues(alpha: 0.14),
-                Colors.white.withValues(alpha: isDark ? 0.06 : 0.9),
+                activeColor.withValues(alpha: 0.2),
+                activeColor.withValues(alpha: 0.12),
+                lightOverlay,
               ],
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
             ),
             border: Border.all(
-              color: color.withValues(alpha: 0.35),
-              width: 1,
+              color: activeColor.withValues(alpha: 0.5),
+              width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withValues(alpha: 0.14),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+                color: activeColor.withValues(alpha: 0.22),
+                blurRadius: 14,
+                offset: const Offset(0, 7),
               ),
             ],
           ),
@@ -58,9 +63,9 @@ class QuickActionButton extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: onTap,
-              borderRadius: BorderRadius.circular(18),
-              splashColor: color.withValues(alpha: 0.12),
-              highlightColor: color.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(20),
+              splashColor: activeColor.withValues(alpha: 0.18),
+              highlightColor: activeColor.withValues(alpha: 0.09),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: AppDimensions.paddingMD,
@@ -70,32 +75,34 @@ class QuickActionButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      width: 42,
-                      height: 42,
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            color.withValues(alpha: 0.92),
-                            color.withValues(alpha: 0.7),
+                            activeColor.withValues(alpha: 0.98),
+                            activeColor.withValues(alpha: 0.78),
                           ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
-                            color: color.withValues(alpha: 0.25),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            color: activeColor.withValues(alpha: 0.32),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
-                      child: Icon(icon, color: AppColors.textLight, size: 20),
+                      child: Icon(icon, color: AppColors.textLight, size: 21),
                     ),
                     const SizedBox(width: AppDimensions.paddingSM),
                     Flexible(
                       child: Text(
                         label,
                         style: AppTextStyles.bodyMedium.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
                           color: textColor ?? AppColors.textPrimary,
                         ),
                         maxLines: 1,

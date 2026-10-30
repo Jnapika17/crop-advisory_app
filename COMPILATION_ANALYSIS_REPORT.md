@@ -60,14 +60,6 @@ warning - Unused import: '../../../models/user_model.dart'
 
 ---
 
-#### `lib/features/auth/providers/simple_auth_provider.dart:7`
-```dart
-warning - Unused import: '../../../services/supabase_service.dart'
-```
-**Impact:** None  
-**Reason:** Service imported but not used directly  
-**Fix:** Safe to remove
-
 ---
 
 #### `lib/services/location_service.dart:8`
@@ -89,14 +81,6 @@ warning - Unused import: 'dart:io'
 **Fix:** Safe to remove
 
 ---
-
-#### `lib/services/supabase_service.dart:13`
-```dart
-warning - Unused import: '../core/config/env_config.dart'
-```
-**Impact:** None  
-**Reason:** Config accessed via provider, not directly  
-**Fix:** Safe to remove
 
 ---
 

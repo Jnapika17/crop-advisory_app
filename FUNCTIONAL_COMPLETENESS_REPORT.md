@@ -77,10 +77,10 @@ All methods implemented and ready:
 - ✅ Pest control reminders
 - ✅ Weather alert notifications
 
-#### **Supabase Backend**
-- ✅ Database integration
-- ✅ Authentication system
-- ✅ User management
+#### **Firebase Backend**
+- ✅ Firebase Authentication integration
+- ✅ Firestore user profile storage
+- ✅ Firebase AI Logic for chat and image analysis
 
 ### 3. **UI/UX Features (Implemented)**
 - ✅ Modern home screen with animations
@@ -254,7 +254,7 @@ These have basic screens but could be improved:
 - ✅ State persistence implemented
 
 ### **Data Layer: 90%**
-- ✅ Supabase integration
+- ✅ Firebase Authentication and Firestore integration
 - ✅ Local storage (Hive, SharedPreferences)
 - ✅ API service layer
 - ⚠️ Offline caching could be enhanced
@@ -284,8 +284,9 @@ These have basic screens but could be improved:
 - ✅ json_annotation (serialization)
 
 **Backend:**
-- ✅ supabase_flutter (database + auth)
-- ✅ google_generative_ai (Gemini AI)
+- ✅ firebase_auth (account authentication)
+- ✅ cloud_firestore (profile storage)
+- ✅ firebase_ai (Gemini AI)
 - ✅ dio (HTTP client)
 
 **Features:**

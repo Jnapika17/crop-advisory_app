@@ -1,16 +1,16 @@
 # API Integration Guide - Crop Advisory App
 
 ## Overview
-This document provides comprehensive information about all API integrations and AI-powered features in the Crop Advisory App. All analysis and intelligent features are powered by **Google Gemini AI API**.
+This document provides information about the app's external APIs and AI features. Gemini requests use **Firebase AI Logic** and the configured Firebase project.
 
 ---
 
 ## 🔑 Required API Keys
 
-### 1. Google Gemini API (Required)
-- **Purpose**: All AI-powered analysis, recommendations, and chatbot functionality
-- **Get API Key**: [Google AI Studio](https://makersuite.google.com/app/apikey)
-- **Environment Variable**: `GEMINI_API_KEY`
+### 1. Firebase AI Logic (Required for AI features)
+- **Purpose**: AI-powered recommendations, chat, and pest-image analysis
+- **Setup**: Enable Firebase AI Logic for the Firebase project in `lib/firebase_options.dart`
+- **Credentials**: Uses the configured Firebase app; no separate Gemini key is loaded from `.env`
 - **Usage**: 
   - Chatbot conversations
   - Crop advisory recommendations
@@ -33,12 +33,10 @@ This document provides comprehensive information about all API integrations and 
   - 5-Day Weather Forecast
   - Weather Alerts (paid feature)
 
-### 3. Supabase (Required for Backend)
-- **Purpose**: User authentication, data storage, and backend services
-- **Get Credentials**: [Supabase Dashboard](https://supabase.com/dashboard)
-- **Environment Variables**:
-  - `SUPABASE_URL`
-  - `SUPABASE_ANON_KEY`
+### 3. Firebase (Required for account services)
+- **Purpose**: User authentication and profile storage
+- **Setup**: Enable Firebase Authentication and Cloud Firestore for the configured Firebase project
+- **Security**: Restrict profile documents to the authenticated owner using Firestore security rules
 
 ---
 
@@ -437,9 +435,6 @@ flutter pub get
 ### 2. Configure Environment Variables
 Edit `.env` file:
 ```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-supabase-anon-key
-GEMINI_API_KEY=your-gemini-api-key
 WEATHER_API_KEY=your-openweathermap-api-key
 ```
 

@@ -237,80 +237,83 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const SizedBox(height: AppDimensions.paddingMD),
 
             // Grid Layout for Features
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: AppDimensions.paddingMD,
-              mainAxisSpacing: AppDimensions.paddingMD,
-              childAspectRatio: 0.85,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                FeatureCard(
-                  icon: Icons.eco,
-                  title: l10n.cropAdvisory,
-                  description: l10n.cropAdvisoryDesc,
-                  color: AppColors.success,
-                  onTap: () =>
-                      context.pushWithSlide(const CropAdvisoryScreen()),
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 700.ms)
-                    .slideY(begin: 0.2, end: 0),
-                FeatureCard(
-                  icon: Icons.science_outlined,
-                  title: 'Fertilizer Calculator',
-                  description: 'Calculate NPK needs for your field',
-                  color: AppColors.warning,
-                  onTap: () => context.pushWithSlide(
-                    const FertilizerCalculatorScreen(),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final columns = constraints.maxWidth >= 720
+                    ? 3
+                    : constraints.maxWidth >= 320
+                        ? 2
+                        : 1;
+                final features = [
+                  FeatureCard(
+                    icon: Icons.eco_outlined,
+                    title: l10n.cropAdvisory,
+                    description: l10n.cropAdvisoryDesc,
+                    color: AppColors.primary,
+                    onTap: () =>
+                        context.pushWithSlide(const CropAdvisoryScreen()),
                   ),
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 1150.ms)
-                    .slideY(begin: 0.2, end: 0),
-                FeatureCard(
-                  icon: Icons.grass,
-                  title: l10n.soilHealth,
-                  description: l10n.soilHealthDesc,
-                  color: AppColors.secondary,
-                  onTap: () => context.pushWithSlide(const SoilHealthScreen()),
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 800.ms)
-                    .slideY(begin: 0.2, end: 0),
-                FeatureCard(
-                  icon: Icons.cloud,
-                  title: l10n.weatherForecast,
-                  description: l10n.weatherForecastDesc,
-                  color: AppColors.info,
-                  onTap: () => context.pushWithSlide(const WeatherScreen()),
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 900.ms)
-                    .slideY(begin: 0.2, end: 0),
-                FeatureCard(
-                  icon: Icons.bug_report,
-                  title: l10n.pestDetection,
-                  description: l10n.pestDetectionDesc,
-                  color: AppColors.error,
-                  onTap: () =>
-                      context.pushWithSlide(const PestDetectionScreen()),
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 1000.ms)
-                    .slideY(begin: 0.2, end: 0),
-                FeatureCard(
-                  icon: Icons.show_chart,
-                  title: l10n.marketPrices,
-                  description: l10n.marketPricesDesc,
-                  color: AppColors.accent,
-                  onTap: () =>
-                      context.pushWithSlide(const MarketPricesScreen()),
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 1100.ms)
-                    .slideY(begin: 0.2, end: 0),
-              ],
+                  FeatureCard(
+                    icon: Icons.science_outlined,
+                    title: 'Fertilizer Calculator',
+                    description: 'Plan nutrient needs for your field',
+                    color: AppColors.accentDark,
+                    onTap: () => context.pushWithSlide(
+                      const FertilizerCalculatorScreen(),
+                    ),
+                  ),
+                  FeatureCard(
+                    icon: Icons.grass_outlined,
+                    title: l10n.soilHealth,
+                    description: l10n.soilHealthDesc,
+                    color: AppColors.secondary,
+                    onTap: () =>
+                        context.pushWithSlide(const SoilHealthScreen()),
+                  ),
+                  FeatureCard(
+                    icon: Icons.cloud_outlined,
+                    title: l10n.weatherForecast,
+                    description: l10n.weatherForecastDesc,
+                    color: AppColors.info,
+                    onTap: () => context.pushWithSlide(const WeatherScreen()),
+                  ),
+                  FeatureCard(
+                    icon: Icons.pest_control_outlined,
+                    title: l10n.pestDetection,
+                    description: l10n.pestDetectionDesc,
+                    color: AppColors.error,
+                    onTap: () =>
+                        context.pushWithSlide(const PestDetectionScreen()),
+                  ),
+                  FeatureCard(
+                    icon: Icons.show_chart,
+                    title: l10n.marketPrices,
+                    description: l10n.marketPricesDesc,
+                    color: AppColors.primaryDark,
+                    onTap: () =>
+                        context.pushWithSlide(const MarketPricesScreen()),
+                  ),
+                ];
+
+                return GridView.count(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: AppDimensions.paddingMD,
+                  mainAxisSpacing: AppDimensions.paddingMD,
+                  childAspectRatio: 1.18,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    for (var index = 0; index < features.length; index++)
+                      features[index]
+                          .animate()
+                          .fadeIn(
+                            duration: 450.ms,
+                            delay: (100 * index).ms,
+                          )
+                          .slideY(begin: 0.08, end: 0),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: AppDimensions.paddingLG),
           ],

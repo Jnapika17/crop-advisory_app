@@ -111,22 +111,18 @@ NotificationService notificationService(NotificationServiceRef ref) {
 
 ---
 
-### **5. Supabase Service**
+### **5. Firebase Services**
 
 ```dart
-@Riverpod(keepAlive: true)
-SupabaseService supabaseService(SupabaseServiceRef ref) {
-  final client = ref.watch(supabaseClientProvider);
-  return SupabaseService(client);
-}
+FirebaseAuth.instance
+FirebaseFirestore.instance
+FirebaseAI.googleAI()
 ```
 
 **Features:**
-- Authentication (email, phone, OTP)
-- Database CRUD operations
-- Real-time subscriptions
-- File storage
-- Session management
+- Firebase Authentication for account sessions
+- Cloud Firestore for user profile documents
+- Firebase AI Logic for text and image generation
 
 ---
 
@@ -412,8 +408,12 @@ envConfigProvider
     ├── geminiVisionModelProvider
     │       └── geminiServiceProvider
     ├── weatherServiceProvider
-    └── supabaseClientProvider
-            └── supabaseServiceProvider
+        ├── currentUserProvider
+        │       └── FirebaseAuth.instance
+        ├── AuthNotifier
+        │       └── FirebaseFirestore.instance
+        └── geminiServiceProvider
+          └── FirebaseAI.googleAI()
 
 locationServiceProvider (independent)
 notificationServiceProvider (independent)
@@ -506,7 +506,7 @@ class MyNotifier extends _$MyNotifier {
 
 1. ✅ **Background Sync** - Use WorkManager with providers
 2. ✅ **Offline-First** - Combine with Hive/Isar
-3. ✅ **Real-time Collaboration** - Supabase realtime subscriptions
+3. ✅ **Real-time Updates** - Firebase listeners can be added for shared data
 4. ✅ **Advanced Caching** - HTTP interceptors with providers
 5. ✅ **State Persistence** - riverpod_persistence package
 6. ✅ **Analytics Integration** - Track state changes

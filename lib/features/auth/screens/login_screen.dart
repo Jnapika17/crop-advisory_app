@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../providers/simple_auth_provider.dart';
@@ -85,7 +86,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Login failed: ${e.toString()}'),
+              content: Text(
+                _loginErrorMessage(e),
+              ),
             backgroundColor: AppColors.error,
           ),
         );
@@ -95,6 +98,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  String _loginErrorMessage(Object error) {
+    if (error is FirebaseAuthException) {
+      switch (error.code) {
+        case 'configuration-not-found':
+        case 'operation-not-allowed':
+          return 'Email/Password sign-in is not enabled for this Firebase project. Enable it in Firebase Console under Authentication > Sign-in method.';
+        case 'invalid-credential':
+        case 'wrong-password':
+        case 'user-not-found':
+          return 'The email or password is incorrect.';
+        case 'network-request-failed':
+          return 'Could not reach Firebase. Check your internet connection and try again.';
+      }
+      return error.message ?? 'Sign-in failed. Please try again.';
+    }
+    return error.toString().replaceFirst('Exception: ', '');
   }
 
   // Add the biometric login method and enable dialog

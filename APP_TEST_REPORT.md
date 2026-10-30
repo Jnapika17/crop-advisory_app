@@ -34,7 +34,7 @@
 - ✅ Environment config (.env) present
 - ✅ Theme system (light/dark) implemented
 - ✅ Navigation routes configured
-- ✅ Supabase backend ready
+- ✅ Firebase Authentication and Firestore configured in the app
 
 ### **API Integrations**
 - ✅ **Gemini AI** - All 15+ methods implemented
@@ -94,9 +94,7 @@
 
 1. **Add API Keys to .env:**
    ```env
-   SUPABASE_URL=https://your-project.supabase.co
-   SUPABASE_ANON_KEY=your_supabase_anon_key
-   GEMINI_API_KEY=your_gemini_api_key
+  WEATHER_API_KEY=your_openweathermap_api_key
    WEATHER_API_KEY=your_openweathermap_key
    ```
 
@@ -144,7 +142,7 @@ flutter run
 - [ ] Login screen accessible
 - [ ] Register new user
 - [ ] Form validation works
-- [ ] Supabase integration working
+- [ ] Firebase Authentication working with the deployment project's credentials
 
 ### **5. Theme System**
 - [ ] Toggle switches theme instantly

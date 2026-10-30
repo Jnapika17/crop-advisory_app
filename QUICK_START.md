@@ -21,25 +21,16 @@ flutter pub get
 
 ## 🔑 Step 2: Get API Keys
 
-### **Gemini AI API Key** (Required)
-1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Sign in with Google account
-3. Click "Create API Key"
-4. Copy the generated API key
+### **Firebase** (Required)
+1. Select the Firebase project configured in `lib/firebase_options.dart`.
+2. Enable Email/Password authentication and create a Cloud Firestore database.
+3. Enable Gemini in Firebase AI Logic.
 
 ### **OpenWeatherMap API Key** (Required for Weather)
 1. Go to [OpenWeatherMap](https://openweathermap.org/api)
 2. Sign up for free account
 3. Navigate to "API keys" section
 4. Copy your API key (or generate new one)
-
-### **Supabase Credentials** (Required for Backend)
-1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
-2. Create a new project (or use existing)
-3. Go to Settings → API
-4. Copy:
-   - Project URL
-   - Anon/Public Key
 
 ---
 
@@ -48,10 +39,7 @@ flutter pub get
 Edit the `.env` file in the project root:
 
 ```env
-# Replace with your actual keys
-SUPABASE_URL=https://yourproject.supabase.co
-SUPABASE_ANON_KEY=your_supabase_anon_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+# Replace with your actual key if weather data is needed
 WEATHER_API_KEY=your_openweathermap_key_here
 ```
 

@@ -35,16 +35,12 @@ This guide provides a step-by-step breakdown of how to recreate the Crop Advisor
     *   Add a factory constructor to create an instance of the class from the loaded environment variables.
     *   Add a `isValid` getter to check if all required environment variables are present.
 
-### Step 3: Backend as a Service (BaaS) Integration - Supabase
+### Step 3: Firebase Backend Integration
 
-*   **3.1: Create a new Supabase project:**
-    *   Go to [supabase.com](https://supabase.com) and create a new project.
-*   **3.2: Set up the database schema:**
-    *   Use the Supabase SQL editor to create your tables (e.g., `users`, `crops`, `advisories`). You can refer to the `supabase/schema.sql` file in this project for the schema.
-*   **3.3: Add `supabase_flutter` to `pubspec.yaml`:**
-    *   Add the `supabase_flutter` package to your `pubspec.yaml` file.
-*   **3.4: Initialize Supabase in `main.dart`:**
-    *   In `main.dart`, initialize the Supabase client with your project URL and anon key from your `EnvConfig`.
+*   **3.1: Configure Firebase:** Register each platform app and generate `lib/firebase_options.dart` with FlutterFire CLI.
+*   **3.2: Enable services:** Turn on Firebase Authentication, Cloud Firestore, and Firebase AI Logic in the Firebase console.
+*   **3.3: Secure Firestore:** Add owner-scoped security rules for user profile documents before deployment.
+*   **3.4: Initialize Firebase:** Initialize Firebase in `main.dart` with `DefaultFirebaseOptions.currentPlatform`.
 
 ### Step 4: State Management - Riverpod
 
@@ -53,7 +49,7 @@ This guide provides a step-by-step breakdown of how to recreate the Crop Advisor
 *   **4.2: Set up the `ProviderScope`:**
     *   Wrap your root widget in `main.dart` with a `ProviderScope`.
 *   **4.3: Create providers for core services:**
-    *   Create providers for your services (e.g., `supabaseProvider`, `envConfigProvider`) to make them accessible throughout the app.
+    *   Create providers for Firebase-backed services and `envConfigProvider` to make them accessible throughout the app.
 
 ## Part 2: UI/UX & Onboarding
 
@@ -81,12 +77,12 @@ This guide provides a step-by-step breakdown of how to recreate the Crop Advisor
 *   **7.1: Design and build the login/signup screen UI:**
     *   Create the UI for your login and signup screens.
 *   **7.2: Implement authentication logic:**
-    *   Use `supabase_flutter` to implement email/password and/or social login.
+    *   Use `firebase_auth` to implement email/password and phone login.
 *   **7.3: Create an authentication service and provider:**
     *   Create a service to handle all authentication-related logic.
     *   Create a Riverpod provider for the authentication service.
 *   **7.4: Handle user sessions:**
-    *   Listen to authentication state changes from Supabase and navigate the user to the home screen on successful login.
+    *   Listen to authentication state changes from Firebase Auth and navigate the user to the home screen on successful login.
 
 ## Part 3: Core Features
 
@@ -122,7 +118,7 @@ This guide provides a step-by-step breakdown of how to recreate the Crop Advisor
 *   **11.1: Design the UI for displaying crop advisories:**
     *   Create a list or card-based UI to display advisories.
 *   **11.2: Fetch advisory data:**
-    *   Fetch the data from your Supabase database.
+    *   Fetch profile data from Cloud Firestore.
 
 ### Step 12: Pest Detection Feature
 
@@ -138,23 +134,23 @@ This guide provides a step-by-step breakdown of how to recreate the Crop Advisor
 *   **13.1: Design the UI to display market prices:**
     *   Create a UI to show a list of crops and their market prices.
 *   **13.2: Fetch market price data:**
-    *   Fetch the data from your Supabase database or an external API.
+    *   Fetch data from Cloud Firestore or an external API.
 
 ### Step 14: Soil Health Feature
 
 *   **14.1: Design the UI for soil health information:**
     *   Create a UI to display soil health data.
 *   **14.2: Fetch soil health data:**
-    *   Fetch the data from your Supabase database.
+    *   Fetch profile data from Cloud Firestore.
 
 ### Step 15: Profile Screen
 
 *   **15.1: Design the UI for the profile screen:**
     *   Create a screen where users can see their profile information.
 *   **15.2: Allow users to view and edit their profile information:**
-    *   Implement forms to allow users to update their data in Supabase.
+    *   Implement forms to allow users to update their Firestore profile data.
 *   **15.3: Implement logout functionality:**
-    *   Add a logout button that calls the Supabase `signOut` method.
+    *   Add a logout button that calls Firebase Auth `signOut`.
 
 ## Part 4: Final Touches
 

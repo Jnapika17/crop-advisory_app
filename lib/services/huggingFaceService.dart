@@ -10,8 +10,8 @@ class HuggingFaceService {
   final String _apiKey;
 
   HuggingFaceService({required String apiKey, Dio? dio})
-    : _apiKey = apiKey,
-      _dio = dio ?? Dio();
+      : _apiKey = apiKey,
+        _dio = dio ?? Dio();
 
   // ✅ UPDATED — New HF router endpoint format
   static const String _baseUrl =
@@ -126,8 +126,7 @@ class HuggingFaceService {
       confidence: confidence,
       cropName: parsed.cropName,
       severity: diseaseInfo['severity'] ?? 'Medium',
-      description:
-          diseaseInfo['description'] ??
+      description: diseaseInfo['description'] ??
           'Disease detected by AI model. Consult a local agriculture expert for confirmation.',
       symptoms: List<String>.from(
         diseaseInfo['symptoms'] ?? ['Symptoms information not available'],
@@ -181,7 +180,6 @@ class HuggingFaceService {
   }
 
   /// Disease info database — maps disease name to symptoms, treatments, severity
-  /// TODO: Move to Supabase table for production (see README)
   Map<String, dynamic> _getDiseaseInfo(String diseaseName) {
     final normalized = diseaseName.toLowerCase().trim();
 

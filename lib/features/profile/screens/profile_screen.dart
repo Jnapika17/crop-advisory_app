@@ -139,7 +139,7 @@ class ProfileScreen extends ConsumerWidget {
             subtitle: l10n.readPrivacyPolicy,
             onTap: () {
               _showTextDialog(context, l10n.privacyPolicy,
-                  'Your account data is stored securely by Supabase. AI requests include only the information you submit for that request.');
+                  'Your account is managed with Firebase. AI requests include only the information you submit for that request.');
             },
           ),
           const SizedBox(height: AppDimensions.paddingMD),
